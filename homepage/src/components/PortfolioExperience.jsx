@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { profile, experiences, campus, strengths, skillGroups } from '../data/profile.js'
+import { profile, strengths, skillGroups } from '../data/profile.js'
 import { projects } from '../data/projects.js'
 import './PortfolioExperience.css'
 
@@ -238,23 +238,6 @@ function GridBackground({ enabled }) {
   return <canvas ref={canvasRef} className="portfolio-grid" aria-hidden="true" />
 }
 
-function StatStrip() {
-  return (
-    <div className="stat-strip" aria-label="关键数据">
-      {profile.stats.map((stat) => (
-        <div className="stat-strip__item" key={stat.label}>
-          <strong>
-            {stat.prefix}
-            {stat.value}
-            {stat.suffix}
-          </strong>
-          <span>{stat.label}</span>
-        </div>
-      ))}
-    </div>
-  )
-}
-
 function ContactDock() {
   const phoneDigits = profile.contact.phone.replace(/\D/g, '')
   const actions = [
@@ -295,36 +278,36 @@ function ContactDock() {
 }
 
 function DashboardBoard() {
+  const focusItems = ['品牌营销', '增长运营', '商业化落地']
+
   return (
     <section className="portfolio-section dashboard-board" id="dashboard">
       <div className="portfolio-section__head dashboard-board__head">
         <p>Dashboard</p>
-        <h2>看板先给结论：我把增长、内容和品牌动作做成可复用系统。</h2>
+        <h2>先给判断：品牌、增长和商业化，是同一套可被验证的转化系统。</h2>
       </div>
-      <div className="dashboard-grid" aria-label="个人看板">
-        <article className="dashboard-card dashboard-card--profile">
+      <div className="dashboard-grid dashboard-grid--compact" aria-label="个人看板">
+        <article className="dashboard-card dashboard-card--profile glass-card">
           <span className="dashboard-card__label">Now</span>
           <h3>{profile.roles.join(' · ')}</h3>
-          <p>{profile.tagline}</p>
+          <p>{profile.bio}</p>
           <div className="dashboard-card__meta">
-            <span>{profile.education.school}</span>
-            <span>{profile.contact.location}</span>
+            {focusItems.map((item) => (
+              <span key={item}>{item}</span>
+            ))}
           </div>
         </article>
-        {profile.stats.map((stat) => (
-          <article className="dashboard-card dashboard-card--stat" key={stat.label}>
-            <span className="dashboard-card__label">{stat.label}</span>
-            <strong>
-              {stat.prefix}
-              {stat.value}
-              {stat.suffix}
-            </strong>
-          </article>
-        ))}
       </div>
-      <div className="portfolio-section__subhead">
-        <span>Project Cards</span>
-        <p>用看板卡片收纳代表项目，减少“简历式摊开”，保留可以被快速扫描的数据。</p>
+    </section>
+  )
+}
+
+function ProjectStack() {
+  return (
+    <section className="portfolio-section project-section" id="projects">
+      <div className="portfolio-section__head">
+        <p>Project</p>
+        <h2>项目作为主线：每张卡只讲一个行动、一个场景和一组结果。</h2>
       </div>
       <div className="project-kanban">
         {projects.map((project, index) => (
@@ -347,46 +330,6 @@ function DashboardBoard() {
               {project.tags.slice(0, 4).map((tag) => (
                 <span key={tag}>{tag}</span>
               ))}
-            </div>
-          </article>
-        ))}
-      </div>
-    </section>
-  )
-}
-
-function ExperienceStack() {
-  const campusItems = campus.map((item) => ({
-    company: item.org,
-    role: item.role,
-    location: '厦门',
-    period: item.period,
-    desc: item.desc,
-  }))
-  const timeline = [...experiences, ...campusItems]
-
-  return (
-    <section className="portfolio-section portfolio-section--split" id="experience">
-      <div className="portfolio-section__head">
-        <p>Experience</p>
-        <h2>经历不是流水账，而是几条能力线交叉长出来的路径。</h2>
-      </div>
-      <div className="timeline">
-        <article className="timeline__item timeline__item--education glass-card">
-          <span>{profile.education.period}</span>
-          <div>
-            <h3>{profile.education.school} · {profile.education.major}</h3>
-            <p>{profile.education.degree}</p>
-            <small>{profile.education.courses}</small>
-          </div>
-        </article>
-        {timeline.map((item) => (
-          <article className="timeline__item glass-card" key={`${item.company}-${item.period}`}>
-            <span>{item.period}</span>
-            <div>
-              <h3>{item.role}</h3>
-              <p>{item.company} · {item.location}</p>
-              {item.desc && <small>{item.desc}</small>}
             </div>
           </article>
         ))}
@@ -501,7 +444,7 @@ export default function PortfolioExperience() {
           <a href="#top" className="portfolio-nav__brand">{profile.name}</a>
           <div>
             <a href="#dashboard">看板</a>
-            <a href="#experience">经历</a>
+            <a href="#projects">Project</a>
             <a href="#capabilities">能力点</a>
             <a href="#contact">联系</a>
           </div>
@@ -515,7 +458,7 @@ export default function PortfolioExperience() {
               <p>{profile.bio}</p>
               <div className="hero-panel__actions">
                 <a href="#dashboard">打开看板</a>
-                <a href="#experience">看经历</a>
+                <a href="#projects">看 Project</a>
                 <a href="#contact">联系我</a>
               </div>
             </div>
@@ -525,7 +468,7 @@ export default function PortfolioExperience() {
             </div>
           </section>
           <DashboardBoard />
-          <ExperienceStack />
+          <ProjectStack />
           <CapabilityMatrix />
           <ContactPanel />
         </main>
