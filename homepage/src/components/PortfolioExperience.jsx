@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { profile, experiences, strengths, skillGroups } from '../data/profile.js'
+import { profile, experiences, campus, strengths, skillGroups } from '../data/profile.js'
 import { projects } from '../data/projects.js'
 import './PortfolioExperience.css'
 
@@ -255,16 +255,79 @@ function StatStrip() {
   )
 }
 
-function ProjectRail() {
+function ContactDock() {
+  const phoneDigits = profile.contact.phone.replace(/\D/g, '')
+  const actions = [
+    { label: '邮箱', value: 'Mail', href: `mailto:${profile.contact.email}` },
+    { label: '电话', value: 'Call', href: `tel:${phoneDigits}` },
+    ...profile.socials.map((social) => ({
+      label: social.label,
+      value: 'XHS',
+      href: social.url,
+      external: true,
+    })),
+  ]
+
   return (
-    <section className="portfolio-section" id="projects">
-      <div className="portfolio-section__head">
-        <p>Selected Work</p>
-        <h2>把增长、内容和品牌动作做成可复用系统。</h2>
+    <aside className="contact-dock" aria-label="联系方式">
+      <div className="contact-dock__status">
+        <span />
+        <strong>Open to talk</strong>
       </div>
-      <div className="project-rail">
+      <div className="contact-dock__buttons">
+        {actions.map((action) => (
+          <a
+            href={action.href}
+            target={action.external ? '_blank' : undefined}
+            rel={action.external ? 'noreferrer' : undefined}
+            className="contact-dock__button"
+            key={`${action.value}-${action.href}`}
+            aria-label={action.label}
+            title={action.label}
+          >
+            <span>{action.value}</span>
+          </a>
+        ))}
+      </div>
+    </aside>
+  )
+}
+
+function DashboardBoard() {
+  return (
+    <section className="portfolio-section dashboard-board" id="dashboard">
+      <div className="portfolio-section__head dashboard-board__head">
+        <p>Dashboard</p>
+        <h2>看板先给结论：我把增长、内容和品牌动作做成可复用系统。</h2>
+      </div>
+      <div className="dashboard-grid" aria-label="个人看板">
+        <article className="dashboard-card dashboard-card--profile">
+          <span className="dashboard-card__label">Now</span>
+          <h3>{profile.roles.join(' · ')}</h3>
+          <p>{profile.tagline}</p>
+          <div className="dashboard-card__meta">
+            <span>{profile.education.school}</span>
+            <span>{profile.contact.location}</span>
+          </div>
+        </article>
+        {profile.stats.map((stat) => (
+          <article className="dashboard-card dashboard-card--stat" key={stat.label}>
+            <span className="dashboard-card__label">{stat.label}</span>
+            <strong>
+              {stat.prefix}
+              {stat.value}
+              {stat.suffix}
+            </strong>
+          </article>
+        ))}
+      </div>
+      <div className="portfolio-section__subhead">
+        <span>Project Cards</span>
+        <p>用看板卡片收纳代表项目，减少“简历式摊开”，保留可以被快速扫描的数据。</p>
+      </div>
+      <div className="project-kanban">
         {projects.map((project, index) => (
-          <article className="project-tile" key={project.id} style={{ '--accent': project.gradient, '--i': index }}>
+          <article className="project-tile glass-card" key={project.id} style={{ '--accent': project.gradient, '--i': index }}>
             <div className="project-tile__top">
               <span>{project.category}</span>
               <span>{project.period}</span>
@@ -292,15 +355,32 @@ function ProjectRail() {
 }
 
 function ExperienceStack() {
+  const campusItems = campus.map((item) => ({
+    company: item.org,
+    role: item.role,
+    location: '厦门',
+    period: item.period,
+    desc: item.desc,
+  }))
+  const timeline = [...experiences, ...campusItems]
+
   return (
-    <section className="portfolio-section portfolio-section--split" id="about">
+    <section className="portfolio-section portfolio-section--split" id="experience">
       <div className="portfolio-section__head">
-        <p>Trajectory</p>
-        <h2>在品牌、公关、产品运营和商业化之间快速切换。</h2>
+        <p>Experience</p>
+        <h2>经历不是流水账，而是几条能力线交叉长出来的路径。</h2>
       </div>
       <div className="timeline">
-        {experiences.map((item) => (
-          <article className="timeline__item" key={`${item.company}-${item.period}`}>
+        <article className="timeline__item timeline__item--education glass-card">
+          <span>{profile.education.period}</span>
+          <div>
+            <h3>{profile.education.school} · {profile.education.major}</h3>
+            <p>{profile.education.degree}</p>
+            <small>{profile.education.courses}</small>
+          </div>
+        </article>
+        {timeline.map((item) => (
+          <article className="timeline__item glass-card" key={`${item.company}-${item.period}`}>
             <span>{item.period}</span>
             <div>
               <h3>{item.role}</h3>
@@ -318,14 +398,14 @@ function CapabilityMatrix() {
   const skills = useMemo(() => skillGroups.flatMap((group) => group.items.slice(0, 4)), [])
 
   return (
-    <section className="portfolio-section" id="strengths">
+    <section className="portfolio-section capability-section" id="capabilities">
       <div className="portfolio-section__head">
-        <p>Capability Matrix</p>
-        <h2>从策略到交付，一张网格里看清能力组合。</h2>
+        <p>Capability Points</p>
+        <h2>能力点拆成模块：策略、内容、增长、数据和 AI 协作。</h2>
       </div>
       <div className="capability-grid">
         {strengths.map((item) => (
-          <article className="capability-card" key={item.title}>
+          <article className="capability-card glass-card" key={item.title}>
             <h3>{item.title}</h3>
             <p>{item.desc}</p>
             <div>
@@ -336,10 +416,16 @@ function CapabilityMatrix() {
           </article>
         ))}
       </div>
-      <div className="skill-cloud" aria-label="技能">
-        {skills.map((skill) => (
-          <span key={skill}>{skill}</span>
-        ))}
+      <div className="skill-panel glass-card">
+        <div className="skill-panel__head">
+          <span>Tool Stack</span>
+          <p>能落地的工具栈，才是能力点的边界。</p>
+        </div>
+        <div className="skill-cloud" aria-label="技能">
+          {skills.map((skill) => (
+            <span key={skill}>{skill}</span>
+          ))}
+        </div>
       </div>
     </section>
   )
@@ -381,24 +467,26 @@ export default function PortfolioExperience() {
       <FluidIntro active={!entered} onEnter={enter} />
       <div className="portfolio-shell" aria-hidden={!entered}>
         <GridBackground enabled={entered} />
+        <ContactDock />
         <nav className="portfolio-nav" aria-label="作品集导航">
           <a href="#top" className="portfolio-nav__brand">{profile.name}</a>
           <div>
-            <a href="#about">经历</a>
-            <a href="#projects">项目</a>
-            <a href="#strengths">能力</a>
+            <a href="#dashboard">看板</a>
+            <a href="#experience">经历</a>
+            <a href="#capabilities">能力点</a>
             <a href="#contact">联系</a>
           </div>
         </nav>
         <main id="portfolio-main" tabIndex="-1">
           <section className="hero-panel" id="top">
             <div className="hero-panel__copy">
-              <p className="hero-panel__eyebrow">Kay Wu / Portfolio</p>
+              <p className="hero-panel__eyebrow">Kay Wu / Glass Workspace</p>
               <h1>{profile.name}</h1>
               <h2>{profile.roles.join(' · ')}</h2>
               <p>{profile.bio}</p>
               <div className="hero-panel__actions">
-                <a href="#projects">查看项目</a>
+                <a href="#dashboard">打开看板</a>
+                <a href="#experience">看经历</a>
                 <a href="#contact">联系我</a>
               </div>
             </div>
@@ -407,9 +495,8 @@ export default function PortfolioExperience() {
               <span>{profile.education.school}</span>
             </div>
           </section>
-          <StatStrip />
+          <DashboardBoard />
           <ExperienceStack />
-          <ProjectRail />
           <CapabilityMatrix />
           <ContactPanel />
         </main>
