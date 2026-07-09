@@ -2,6 +2,10 @@
 
 This repository contains the React/Vite portfolio homepage in `homepage/`.
 
+## Font Notice
+
+This website uses OPPO Sans 4.0. The unmodified font file and license notice are included in `homepage/public/fonts/`.
+
 ## Development
 
 ```bash
