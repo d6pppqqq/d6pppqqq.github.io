@@ -432,19 +432,49 @@ function CapabilityMatrix() {
 }
 
 function ContactPanel() {
+  const contactActions = [
+    {
+      label: 'Email',
+      value: profile.contact.email,
+      href: `mailto:${profile.contact.email}`,
+      mark: '@',
+    },
+    {
+      label: 'Phone',
+      value: profile.contact.phone,
+      href: `tel:${profile.contact.phone.replace(/\D/g, '')}`,
+      mark: '☎',
+    },
+    ...profile.socials.map((social) => ({
+      label: social.platform,
+      value: social.label,
+      href: social.url,
+      mark: '小',
+      external: true,
+    })),
+  ]
+
   return (
     <section className="contact-panel" id="contact">
-      <div>
+      <div className="contact-panel__copy">
         <p>Contact</p>
         <h2>一起做点有价值的。</h2>
         <span>{profile.tagline}</span>
       </div>
       <div className="contact-panel__links">
-        <a href={`mailto:${profile.contact.email}`}>{profile.contact.email}</a>
-        <a href={`tel:${profile.contact.phone.replace(/\D/g, '')}`}>{profile.contact.phone}</a>
-        {profile.socials.map((social) => (
-          <a href={social.url} target="_blank" rel="noreferrer" key={social.url}>
-            {social.platform} · {social.label}
+        {contactActions.map((action) => (
+          <a
+            href={action.href}
+            target={action.external ? '_blank' : undefined}
+            rel={action.external ? 'noreferrer' : undefined}
+            className="contact-button"
+            key={`${action.label}-${action.value}`}
+          >
+            <span className="contact-button__mark">{action.mark}</span>
+            <span className="contact-button__text">
+              <strong>{action.label}</strong>
+              <small>{action.value}</small>
+            </span>
           </a>
         ))}
       </div>
