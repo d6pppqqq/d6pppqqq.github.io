@@ -705,6 +705,14 @@
   letter-spacing: 0.02em;
 }
 
+.contact-dock__button img {
+  width: 34px;
+  height: 34px;
+  display: block;
+  border-radius: 9px;
+  box-shadow: 0 8px 18px rgba(242, 63, 75, 0.24);
+}
+
 .contact-dock__button:hover {
   border-color: rgba(255, 255, 255, 0.42);
   background:
@@ -1066,12 +1074,20 @@
 .contact-panel .contact-button__mark {
   display: grid;
   place-items: center;
-  width: 30px;
-  aspect-ratio: 1;
+  width: 34px;
+  height: 34px;
   color: rgba(255, 255, 255, 0.48);
   font-size: 25px;
   font-weight: 520;
   line-height: 1;
+}
+
+.contact-panel .contact-button__mark img {
+  width: 34px;
+  height: 34px;
+  display: block;
+  border-radius: 9px;
+  box-shadow: 0 8px 20px rgba(242, 63, 75, 0.22);
 }
 
 .contact-panel .contact-button__label {

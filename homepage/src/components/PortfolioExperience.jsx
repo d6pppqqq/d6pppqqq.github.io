@@ -264,6 +264,7 @@ function ContactDock() {
       label: social.label,
       value: 'XHS',
       href: social.url,
+      icon: '/icons/xiaohongshu.svg',
       external: true,
     })),
   ]
@@ -285,7 +286,7 @@ function ContactDock() {
             aria-label={action.label}
             title={action.label}
           >
-            <span>{action.value}</span>
+            {action.icon ? <img src={action.icon} alt="" aria-hidden="true" /> : <span>{action.value}</span>}
           </a>
         ))}
       </div>
@@ -446,7 +447,7 @@ function ContactPanel() {
     ...profile.socials.map((social) => ({
       label: social.label.replace('赞藏账号', ''),
       href: social.url,
-      mark: '小',
+      icon: '/icons/xiaohongshu.svg',
       external: true,
     })),
   ]
@@ -467,7 +468,9 @@ function ContactPanel() {
               className="contact-button"
               key={`${action.label}-${action.href}`}
             >
-              <span className="contact-button__mark">{action.mark}</span>
+              <span className="contact-button__mark">
+                {action.icon ? <img src={action.icon} alt="" aria-hidden="true" /> : action.mark}
+              </span>
               <span className="contact-button__label">{action.label}</span>
             </a>
           ))}
