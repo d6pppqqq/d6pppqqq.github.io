@@ -435,13 +435,13 @@ function ContactPanel() {
   const contactActions = [
     {
       label: 'Email',
-      value: profile.contact.email,
+      value: '发送邮件',
       href: `mailto:${profile.contact.email}`,
       mark: '@',
     },
     {
       label: 'Phone',
-      value: profile.contact.phone,
+      value: '电话沟通',
       href: `tel:${profile.contact.phone.replace(/\D/g, '')}`,
       mark: '☎',
     },
