@@ -434,20 +434,17 @@ function CapabilityMatrix() {
 function ContactPanel() {
   const contactActions = [
     {
-      label: 'Email',
-      value: '发送邮件',
+      label: 'Mail',
       href: `mailto:${profile.contact.email}`,
       mark: '@',
     },
     {
-      label: 'Phone',
-      value: '电话沟通',
+      label: 'Call',
       href: `tel:${profile.contact.phone.replace(/\D/g, '')}`,
       mark: '☎',
     },
     ...profile.socials.map((social) => ({
-      label: social.platform,
-      value: social.label,
+      label: social.label.replace('赞藏账号', ''),
       href: social.url,
       mark: '小',
       external: true,
@@ -456,27 +453,26 @@ function ContactPanel() {
 
   return (
     <section className="contact-panel" id="contact">
-      <div className="contact-panel__copy">
-        <p>Contact</p>
-        <h2>一起做点有价值的。</h2>
-        <span>{profile.tagline}</span>
-      </div>
-      <div className="contact-panel__links">
-        {contactActions.map((action) => (
-          <a
-            href={action.href}
-            target={action.external ? '_blank' : undefined}
-            rel={action.external ? 'noreferrer' : undefined}
-            className="contact-button"
-            key={`${action.label}-${action.value}`}
-          >
-            <span className="contact-button__mark">{action.mark}</span>
-            <span className="contact-button__text">
-              <strong>{action.label}</strong>
-              <small>{action.value}</small>
-            </span>
-          </a>
-        ))}
+      <div className="contact-panel__inner">
+        <img className="contact-panel__avatar" src="/avatar.jpg" alt={profile.name} />
+        <h2>{profile.nameEn}</h2>
+        <p>{profile.roles.join(' & ')}</p>
+        <div className="contact-panel__rule" aria-hidden="true" />
+        <nav className="contact-panel__links" aria-label="联系入口">
+          {contactActions.map((action) => (
+            <a
+              href={action.href}
+              target={action.external ? '_blank' : undefined}
+              rel={action.external ? 'noreferrer' : undefined}
+              className="contact-button"
+              key={`${action.label}-${action.href}`}
+            >
+              <span className="contact-button__mark">{action.mark}</span>
+              <span className="contact-button__label">{action.label}</span>
+            </a>
+          ))}
+        </nav>
+        <div className="contact-panel__rule contact-panel__rule--bottom" aria-hidden="true" />
       </div>
     </section>
   )
