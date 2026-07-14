@@ -1,7 +1,6 @@
 /* ============================================
-   全局样式：彩色油漆风（明亮高级）
-   设计语言：纯白底 + 五色油漆流动
-   高级 · 克制 · 有科技感
+   EGA 16-Color Pixel Art Theme
+   90s Demoscene / Cracktro aesthetic
    ============================================ */
 
 *,
@@ -10,249 +9,116 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
 }
 
-@font-face {
-  font-family: 'OPPO Sans 4.0';
-  src: url('/fonts/OPPO-Sans-4.0.ttf') format('truetype');
-  font-weight: 100 900;
-  font-style: normal;
-  font-display: swap;
+/* ---- EGA 16-color palette ---- */
+:root {
+  --ega-black:    #000000;
+  --ega-blue:     #0000AA;
+  --ega-green:    #00AA00;
+  --ega-cyan:     #00AAAA;
+  --ega-red:      #AA0000;
+  --ega-magenta:  #AA00AA;
+  --ega-brown:    #AA5500;
+  --ega-lgray:    #AAAAAA;
+  --ega-dgray:    #555555;
+  --ega-bblue:    #5555FF;
+  --ega-bgreen:   #55FF55;
+  --ega-bcyan:    #55FFFF;
+  --ega-bred:     #FF5555;
+  --ega-bmagenta: #FF55FF;
+  --ega-byellow:  #FFFF55;
+  --ega-white:    #FFFFFF;
+
+  /* Semantic aliases */
+  --bg:        var(--ega-black);
+  --text:      var(--ega-lgray);
+  --text-hi:   var(--ega-white);
+  --accent:    var(--ega-bcyan);
+  --accent2:   var(--ega-byellow);
+  --border:    var(--ega-dgray);
+  --border-hi: var(--ega-bcyan);
+  --nav-bg:    #000000;
+  --panel-bg:  #000000;
+
+  --font-pixel: 'Press Start 2P', 'Courier New', monospace;
+  --nav-h: 48px;
+  --status-h: 32px;
+  --content-max: 960px;
 }
 
 html {
-  scroll-behavior: smooth;
-  scroll-padding-top: 90px;
+  height: 100%;
+  overflow: hidden;
   -webkit-text-size-adjust: 100%;
 }
 
-/* ---- 主题变量（明亮油漆风） ---- */
-:root {
-  /* 背景 —— 纯白 + 微暖米白层次 */
-  --bg-base: #ffffff;
-  --bg-elevated: #fbfbf7;
-  --bg-card: #f7f6ef;
-  --bg-card-hover: #f0eee4;
-
-  /* 油漆色板 —— 五色（用户指定） */
-  --paint-yellow: #f1dd87;  /* 暖黄 */
-  --paint-coral: #fe7b8d;   /* 珊瑚粉 */
-  --paint-olive: #b1ae81;   /* 橄榄/卡其 */
-  --paint-lime: #c6d056;    /* 青柠绿 */
-  --paint-teal: #33afa4;    /* 孔雀蓝/青 —— 最深，作主品牌色 */
-
-  /* 兼容旧变量名（指向新色，保持组件引用不报错） */
-  --paint-cyan: #33afa4;
-  --paint-blue: #33afa4;
-  --paint-violet: #fe7b8d;
-  --paint-pink: #fe7b8d;
-  --paint-orange: #f1dd87;
-  --paint-green: #c6d056;
-
-  /* 品牌主渐变（油漆流动，五色） */
-  --brand-gradient: linear-gradient(135deg, #33afa4 0%, #c6d056 30%, #f1dd87 60%, #fe7b8d 100%);
-
-  /* 文字 —— 白底需用深色 */
-  --text-primary: #171a20;
-  --text-secondary: #58606d;
-  --text-muted: #8a919c;
-
-  /* 边框 —— 浅色细边 */
-  --border: rgba(23, 26, 32, 0.08);
-  --border-strong: rgba(23, 26, 32, 0.16);
-
-  /* 尺寸 */
-  --nav-height: 76px;
-  --max-width: 1500px;
-  --section-padding: clamp(86px, 10vh, 132px);
-
-  /* 圆角 */
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 18px;
-  --radius-xl: 24px;
-
-  /* 字体 */
-  --font-sans: 'OPPO Sans 4.0', -apple-system, BlinkMacSystemFont, 'PingFang SC',
-    'Microsoft YaHei', 'Segoe UI', system-ui, sans-serif;
-  --font-display: 'OPPO Sans 4.0', -apple-system, BlinkMacSystemFont, 'PingFang SC',
-    sans-serif;
-  --font-mono: 'OPPO Sans 4.0', 'SF Mono', Consolas, monospace;
-
-  /* 缓动 */
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
 body {
-  font-family: var(--font-sans);
-  background-color: var(--bg-base);
-  color: var(--text-primary);
-  line-height: 1.65;
-  font-size: 16px;
-  -webkit-font-smoothing: antialiased;
+  font-family: var(--font-pixel);
+  background: var(--ega-black);
+  color: var(--ega-lgray);
+  line-height: 2;
+  font-size: 10px;
+  -webkit-font-smoothing: none;
   -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
+  font-smooth: never;
+  overflow: hidden;
+  height: 100%;
+  cursor: crosshair;
 }
 
-/* 全页背景：极淡的油漆光晕 */
+/* CRT scanlines overlay */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 2px,
+    rgba(0, 0, 0, 0.20) 2px,
+    rgba(0, 0, 0, 0.20) 4px
+  );
+}
+
+/* CRT corner vignette */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
-  z-index: -2;
-  background:
-    linear-gradient(90deg, rgba(23, 26, 32, 0.025) 1px, transparent 1px),
-    linear-gradient(rgba(23, 26, 32, 0.025) 1px, transparent 1px),
-    radial-gradient(ellipse 50% 42% at 12% 8%, rgba(51, 175, 164, 0.055), transparent 62%),
-    radial-gradient(ellipse 42% 38% at 88% 92%, rgba(254, 123, 141, 0.055), transparent 62%);
-  background-size: 56px 56px, 56px 56px, auto, auto;
+  z-index: 9998;
   pointer-events: none;
+  background: radial-gradient(
+    ellipse 100% 100% at 50% 50%,
+    transparent 60%,
+    rgba(0, 0, 0, 0.55) 100%
+  );
 }
 
 a {
-  color: inherit;
+  color: var(--ega-bcyan);
   text-decoration: none;
-  transition: color 0.2s var(--ease-out);
+}
+
+a:hover {
+  color: var(--ega-byellow);
+  text-decoration: underline;
 }
 
 button {
-  font-family: inherit;
-  cursor: pointer;
+  font-family: var(--font-pixel);
+  cursor: crosshair;
 }
 
-/* ---- 通用容器（1700px 版心） ---- */
-.container {
-  width: 100%;
-  max-width: var(--max-width);
-  margin: 0 auto;
-  padding: 0 44px;
-}
-
-/* ---- 通用 Section ---- */
-.section {
-  padding: var(--section-padding) 0;
-  position: relative;
-}
-
-.section-eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--paint-cyan);
-  margin-bottom: 20px;
-}
-
-.section-eyebrow::before {
-  content: '';
-  width: 28px;
-  height: 2px;
-  background: var(--brand-gradient);
-  border-radius: 2px;
-}
-
-.section-title {
-  font-family: var(--font-display);
-  font-size: clamp(36px, 4.7vw, 64px);
-  font-weight: 850;
-  letter-spacing: -0.025em;
-  line-height: 1.1;
-  margin-bottom: 20px;
-}
-
-.section-subtitle {
-  font-size: clamp(16px, 1.35vw, 19px);
-  color: var(--text-secondary);
-  max-width: 720px;
-  line-height: 1.7;
-}
-
-/* ---- 渐变文字 ---- */
-.gradient-text {
-  background: var(--brand-gradient);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
-}
-
-/* ---- 滚动揭示动画 ---- */
-[data-reveal] {
-  opacity: 0;
-  transform: translateY(22px);
-  transition:
-    opacity 0.72s var(--ease-out),
-    transform 0.72s var(--ease-out);
-  transition-delay: var(--reveal-delay, 0ms);
-  will-change: opacity, transform;
-}
-
-[data-reveal].revealed {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* ---- 响应式 ---- */
-@media (max-width: 1280px) {
-  .container {
-    padding: 0 36px;
-  }
-}
-
-@media (max-width: 768px) {
-  html {
-    scroll-padding-top: 72px;
-  }
-  .container {
-    padding: 0 20px;
-  }
-  .section {
-    padding: clamp(70px, 9vh, 96px) 0;
-  }
-  .section-title {
-    line-height: 1.12;
-  }
-}
-
-/* ---- 无障碍 ---- */
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-  [data-reveal] {
-    opacity: 1;
-    transform: none;
-  }
-}
+/* Scrollbars hidden — 90s had none */
+::-webkit-scrollbar { display: none; }
+* { scrollbar-width: none; }
 
 ::selection {
-  background: rgba(51, 175, 164, 0.25);
-  color: #1a1d24;
-}
-
-::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
-::-webkit-scrollbar-track {
-  background: var(--bg-base);
-}
-::-webkit-scrollbar-thumb {
-  background: #d8d4c8;
-  border-radius: 10px;
-  border: 2px solid var(--bg-base);
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #33afa4;
+  background: var(--ega-bcyan);
+  color: var(--ega-black);
 }

@@ -1,477 +1,405 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { profile, strengths, skillGroups } from '../data/profile.js'
-import { projects } from '../data/projects.js'
+import { useEffect, useRef, useState } from 'react'
+import { profile } from '../data/profile.js'
+import { ChiptuneEngine } from '../audio/chiptuneEngine.js'
 import './PortfolioExperience.css'
 
-function FluidIntro({ active, onEnter }) {
-  const canvasRef = useRef(null)
-  const title = profile.nameEn || profile.name
-  const subtitle = `${profile.roles.join(' / ')} / Portfolio`
+// ── shared chiptune engine ──────────────────────────────────────
+const engine = new ChiptuneEngine()
 
-  useEffect(() => {
-    if (!active) return undefined
+// ── content (Press Start 2P doesn't support CJK → English) ──────
+const EN_PROJECTS = [
+  {
+    title: 'CRYSTAL E-COMM · FROM ZERO',
+    category: 'E-COMMERCE GROWTH',
+    period: '2023.12 — 2024.05',
+    summary:
+      'Vertically targeted students with emotional-value + mystical marketing. ' +
+      'Built full crystal e-comm from scratch — SKU, content matrix, full-funnel attribution.',
+    metrics: [{ value: '+15%', label: 'CAC' }, { value: '+10%', label: 'GMV' }],
+    tags: ['E-COMM OPS', 'GROWTH LOOP', 'ATTRIBUTION', 'PRIVATE TRAFFIC'],
+  },
+  {
+    title: 'AI PRODUCT KOL MATRIX',
+    category: 'CREATOR MKT · CROSS-BORDER',
+    period: '2025.08 — 2025.11',
+    summary:
+      'Led full-funnel overseas KOL marketing for AI product. Built 500+ creator matrix, ' +
+      'drove 5M+ impressions. CTR lifted from 0.5% to 1%+.',
+    metrics: [{ value: '5M+', label: 'IMPRESSIONS' }, { value: '0.5→1%+', label: 'CTR' }],
+    tags: ['KOL OPS', 'CROSS-BORDER', 'CONTENT COLLAB', 'DATA REVIEW'],
+  },
+  {
+    title: 'HEALTH BRAND IMC CAMPAIGN',
+    category: 'PR · INTEGRATED MARKETING',
+    period: '2026.02 — 2026.05',
+    summary:
+      'Spearheaded annual integrated comms for a health brand — 100sqm trade-show booth to ' +
+      'corporate culture system. Zero-error execution across 3+ campaign plans.',
+    metrics: [{ value: '100m²', label: 'BOOTH' }, { value: '3+', label: 'PLANS' }],
+    tags: ['IMC', 'TRADE SHOW OPS', 'MEDIA RELATIONS', 'CORP CULTURE'],
+  },
+  {
+    title: 'CAMPUS MEDIA · CONTENT SOP',
+    category: 'TEAM MGMT · VIDEO PROD',
+    period: '2025.06 — NOW',
+    summary:
+      'Led a 40-person video team. Built production SOP from scratch. Shot & distributed ' +
+      'content for 25+ major events (30K+ attendees). Micro-doc hit 10K+ views.',
+    metrics: [{ value: '40+', label: 'TEAM' }, { value: '25+', label: 'EVENTS' }],
+    tags: ['TEAM MGMT', 'SOP BUILD', 'VIDEO PROD', 'CONTENT DISTRIB'],
+  },
+]
 
-    const canvas = canvasRef.current
-    const ctx = canvas.getContext('2d')
-    let raf = 0
-    let width = 0
-    let height = 0
-    let pointer = { x: 0.58, y: 0.48, active: false }
-    const colors = ['#33afa4', '#c6d056', '#f1dd87', '#fe7b8d', '#ffffff']
-    const drops = Array.from({ length: 34 }, (_, i) => ({
-      x: Math.random(),
-      y: Math.random(),
-      r: 18 + Math.random() * 66,
-      vx: (Math.random() - 0.5) * 0.0014,
-      vy: (Math.random() - 0.5) * 0.0014,
-      color: colors[i % colors.length],
-      phase: Math.random() * Math.PI * 2,
-    }))
+const SKILL_BARS = [
+  { label: 'KOL / INFLUENCER OPS', pct: 92 },
+  { label: 'BRAND STRATEGY',       pct: 88 },
+  { label: 'GROWTH ANALYTICS',     pct: 80 },
+  { label: 'CONTENT CREATION',     pct: 85 },
+  { label: 'PYTHON / SQL',         pct: 72 },
+  { label: 'AIGC TOOLS',           pct: 82 },
+]
 
-    const resize = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2)
-      width = canvas.clientWidth
-      height = canvas.clientHeight
-      canvas.width = Math.floor(width * dpr)
-      canvas.height = Math.floor(height * dpr)
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-    }
+const TOOL_GROUPS = [
+  { group: 'CODE & DATA',    items: ['Python', 'SQL', 'SPSS'] },
+  { group: 'VISUAL & VIDEO', items: ['Photoshop', 'Lightroom', 'DaVinci', 'FCPX'] },
+  { group: 'AIGC & DESIGN',  items: ['Claude Code', 'Kling / Jimeng', 'GPT-Image2', 'Figma'] },
+  { group: 'LANGUAGE',       items: ['English CET-6 (553)'] },
+]
 
-    const move = (event) => {
-      pointer = {
-        x: event.clientX / Math.max(window.innerWidth, 1),
-        y: event.clientY / Math.max(window.innerHeight, 1),
-        active: true,
-      }
-    }
+const STATS = [
+  { val: '5M+',  label: 'KOL IMPRESSIONS' },
+  { val: '500+', label: 'CREATOR MATRIX' },
+  { val: '+15%', label: 'CAC IMPROVEMENT' },
+  { val: '30K+', label: 'EVENTS SERVED' },
+]
 
-    const tick = (time) => {
-      ctx.clearRect(0, 0, width, height)
-      ctx.fillStyle = '#060606'
-      ctx.fillRect(0, 0, width, height)
-      ctx.globalCompositeOperation = 'lighter'
+const CONTACT_ROWS = [
+  { label: 'MAIL', val: profile.contact.email },
+  { label: 'CALL', val: profile.contact.phone },
+  { label: 'BASE', val: 'SHANGHAI / XIAMEN' },
+]
 
-      drops.forEach((drop, index) => {
-        const pull = pointer.active ? 0.0022 : 0.0006
-        drop.vx += (pointer.x - drop.x) * pull * (index % 3 === 0 ? 1.4 : 0.45)
-        drop.vy += (pointer.y - drop.y) * pull * (index % 4 === 0 ? 1.2 : 0.4)
-        drop.vx *= 0.982
-        drop.vy *= 0.982
-        drop.x += drop.vx + Math.sin(time * 0.0004 + drop.phase) * 0.0006
-        drop.y += drop.vy + Math.cos(time * 0.00035 + drop.phase) * 0.0006
+// ── terminal chrome ─────────────────────────────────────────────
+const PROMPT = 'kay@portfolio:~$'
 
-        if (drop.x < -0.12) drop.x = 1.12
-        if (drop.x > 1.12) drop.x = -0.12
-        if (drop.y < -0.12) drop.y = 1.12
-        if (drop.y > 1.12) drop.y = -0.12
+const FILES = ['about.txt', 'projects/', 'skills.dat', 'stats.log', 'contact.txt', 'social.url', 'edu.txt']
 
-        const x = drop.x * width
-        const y = drop.y * height
-        const radius = drop.r * (1 + Math.sin(time * 0.001 + drop.phase) * 0.18)
-        const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius)
-        gradient.addColorStop(0, `${drop.color}cc`)
-        gradient.addColorStop(0.55, `${drop.color}44`)
-        gradient.addColorStop(1, `${drop.color}00`)
-        ctx.fillStyle = gradient
-        ctx.beginPath()
-        ctx.arc(x, y, radius, 0, Math.PI * 2)
-        ctx.fill()
-      })
+const HELP = [
+  ['help',        'show this command list'],
+  ['about',       'who is kay wu'],
+  ['ls',          'list files here'],
+  ['cat <file>',  'print a file  (try: cat about.txt)'],
+  ['projects',    'list projects · projects <n> for detail'],
+  ['skills',      'capability matrix + tool stack'],
+  ['stats',       'key metrics dump'],
+  ['contact',     'how to reach me'],
+  ['social',      'xiaohongshu links'],
+  ['edu',         'education record'],
+  ['neofetch',    'system + operator info'],
+  ['music',       'toggle chiptune (music on / off)'],
+  ['echo <text>', 'print text'],
+  ['clear',       'clear the screen'],
+]
 
-      ctx.globalCompositeOperation = 'source-over'
-      const vignette = ctx.createRadialGradient(width / 2, height / 2, 0, width / 2, height / 2, Math.max(width, height) * 0.72)
-      vignette.addColorStop(0, 'rgba(6,6,6,0)')
-      vignette.addColorStop(1, 'rgba(6,6,6,0.82)')
-      ctx.fillStyle = vignette
-      ctx.fillRect(0, 0, width, height)
-      raf = requestAnimationFrame(tick)
-    }
+// spelled with block chars — KAY WU
+const BANNER = [
+  '  #  # ##  #   #  #  # #  #',
+  '  # #  # # #   #  #  # #  #',
+  '  ##   ##  #   #  # ## #  #',
+  '  # #  # #  # #   #  #  ##',
+  '  #  # # #   #    #  #  ##',
+]
 
-    resize()
-    window.addEventListener('resize', resize)
-    window.addEventListener('pointermove', move)
-    raf = requestAnimationFrame(tick)
+const FACE = [
+  '  ______  ',
+  ' /      \\ ',
+  '| ^    ^ |',
+  '|   __   |',
+  ' \\  \\/  / ',
+  '  \\____/  ',
+]
 
-    return () => {
-      cancelAnimationFrame(raf)
-      window.removeEventListener('resize', resize)
-      window.removeEventListener('pointermove', move)
-    }
-  }, [active])
+const BOOT = [
+  ...BANNER.map((t) => ({ t, c: 'clr-cyan' })),
+  { t: '' },
+  { t: 'KAY-DOS v3.0  ·  PORTFOLIO SHELL  [ROM BIOS 1997]', c: 'clr-gray' },
+  { t: 'Booting kernel ......... OK', c: 'clr-green' },
+  { t: 'Mounting /home/kay ..... OK', c: 'clr-green' },
+  { t: '' },
+  { t: "Type 'help' for commands.  Try: about · projects · skills", c: 'clr-yellow' },
+  { t: '' },
+]
 
-  useEffect(() => {
-    if (!active) return undefined
-    const onWheel = (event) => {
-      if (event.deltaY > 10) onEnter()
-    }
-    window.addEventListener('wheel', onWheel, { passive: true })
-    return () => window.removeEventListener('wheel', onWheel)
-  }, [active, onEnter])
-
-  return (
-    <section className={`intro-stage ${active ? 'is-active' : 'is-hidden'}`} aria-hidden={!active}>
-      <canvas ref={canvasRef} className="intro-stage__canvas" />
-      <div className="intro-stage__content">
-        <p className="intro-stage__eyebrow">Portfolio / Growth / Creative Ops</p>
-        <h1 className="intro-stage__title">{title}</h1>
-        <p className="intro-stage__subtitle">
-          {subtitle.split('').map((char, index) => (
-            <span key={`${char}-${index}`} style={{ '--delay': `${index * 32}ms` }}>
-              {char === ' ' ? '\u00a0' : char}
-            </span>
-          ))}
-        </p>
-        <button className="intro-stage__enter" onClick={onEnter} type="button">
-          enter
-        </button>
-      </div>
-      <button className="intro-stage__corner" onClick={onEnter} type="button" aria-label="进入作品集">
-        <span>OPEN</span>
-      </button>
-      <div className="intro-stage__arrow intro-stage__arrow--one" />
-      <div className="intro-stage__arrow intro-stage__arrow--two" />
-    </section>
-  )
+function bar(pct, cells = 20) {
+  const filled = Math.round((pct / 100) * cells)
+  return '█'.repeat(filled) + '░'.repeat(cells - filled)
 }
 
-function GridBackground({ enabled }) {
-  const canvasRef = useRef(null)
-
-  useEffect(() => {
-    if (!enabled) return undefined
-
-    const canvas = canvasRef.current
-    const ctx = canvas.getContext('2d')
-    let raf = 0
-    let width = 0
-    let height = 0
-    let dpr = 1
-    let offset = 0
-    let pointer = null
-    const square = window.matchMedia('(max-width: 720px)').matches ? 52 : 42
-    const trail = []
-
-    const resize = () => {
-      dpr = Math.min(window.devicePixelRatio || 1, 2)
-      width = canvas.clientWidth
-      height = canvas.clientHeight
-      canvas.width = Math.floor(width * dpr)
-      canvas.height = Math.floor(height * dpr)
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-    }
-
-    const move = (event) => {
-      const rect = canvas.getBoundingClientRect()
-      pointer = { x: event.clientX - rect.left, y: event.clientY - rect.top }
-      trail.unshift({ ...pointer, life: 1 })
-      trail.splice(24)
-    }
-
-    const leave = () => {
-      pointer = null
-    }
-
-    const tick = () => {
-      offset = (offset + 0.22) % square
-      ctx.clearRect(0, 0, width, height)
-      ctx.fillStyle = '#060606'
-      ctx.fillRect(0, 0, width, height)
-
-      for (let x = -square + offset; x < width + square; x += square) {
-        for (let y = -square + offset; y < height + square; y += square) {
-          const dx = pointer ? x + square / 2 - pointer.x : 9999
-          const dy = pointer ? y + square / 2 - pointer.y : 9999
-          const distance = Math.sqrt(dx * dx + dy * dy)
-          const heat = Math.max(0, 1 - distance / 190)
-
-          if (heat > 0.03) {
-            ctx.fillStyle = `rgba(255,255,255,${0.06 + heat * 0.22})`
-            ctx.shadowColor = `rgba(51,175,164,${heat * 0.5})`
-            ctx.shadowBlur = 16 * heat
-            ctx.fillRect(x, y, square, square)
-            ctx.shadowBlur = 0
-          }
-
-          ctx.strokeStyle = `rgba(255,255,255,${0.055 + heat * 0.13})`
-          ctx.lineWidth = 1
-          ctx.strokeRect(x, y, square, square)
-        }
-      }
-
-      trail.forEach((point, index) => {
-        point.life -= 0.02
-        const alpha = Math.max(point.life, 0) * (1 - index / 30)
-        ctx.fillStyle = `rgba(198,208,86,${alpha * 0.2})`
-        ctx.shadowColor = `rgba(254,123,141,${alpha * 0.5})`
-        ctx.shadowBlur = 28
-        ctx.fillRect(
-          Math.floor(point.x / square) * square + offset,
-          Math.floor(point.y / square) * square + offset,
-          square,
-          square,
-        )
-      })
-
-      const fade = ctx.createRadialGradient(width / 2, height / 2, 0, width / 2, height / 2, Math.max(width, height) * 0.72)
-      fade.addColorStop(0, 'rgba(6,6,6,0)')
-      fade.addColorStop(1, 'rgba(6,6,6,0.82)')
-      ctx.fillStyle = fade
-      ctx.fillRect(0, 0, width, height)
-
-      raf = requestAnimationFrame(tick)
-    }
-
-    resize()
-    canvas.addEventListener('pointermove', move)
-    canvas.addEventListener('pointerleave', leave)
-    window.addEventListener('resize', resize)
-    raf = requestAnimationFrame(tick)
-
-    return () => {
-      cancelAnimationFrame(raf)
-      canvas.removeEventListener('pointermove', move)
-      canvas.removeEventListener('pointerleave', leave)
-      window.removeEventListener('resize', resize)
-    }
-  }, [enabled])
-
-  return <canvas ref={canvasRef} className="portfolio-grid" aria-hidden="true" />
-}
-
-function ContactDock() {
-  const phoneDigits = profile.contact.phone.replace(/\D/g, '')
-  const actions = [
-    { label: '邮箱', value: 'Mail', href: `mailto:${profile.contact.email}` },
-    { label: '电话', value: 'Call', href: `tel:${phoneDigits}` },
-    ...profile.socials.map((social) => ({
-      label: social.label,
-      value: 'XHS',
-      href: social.url,
-      icon: '/icons/xiaohongshu.svg',
-      external: true,
-    })),
-  ]
-
-  return (
-    <aside className="contact-dock" aria-label="联系方式">
-      <div className="contact-dock__status">
-        <span />
-        <strong>Open to talk</strong>
-      </div>
-      <div className="contact-dock__buttons">
-        {actions.map((action) => (
-          <a
-            href={action.href}
-            target={action.external ? '_blank' : undefined}
-            rel={action.external ? 'noreferrer' : undefined}
-            className="contact-dock__button"
-            key={`${action.value}-${action.href}`}
-            aria-label={action.label}
-            title={action.label}
-          >
-            {action.icon ? <img src={action.icon} alt="" aria-hidden="true" /> : <span>{action.value}</span>}
-          </a>
-        ))}
-      </div>
-    </aside>
-  )
-}
-
-function DashboardBoard() {
-  const focusItems = ['品牌营销', '增长运营', '商业化落地']
-
-  return (
-    <section className="portfolio-section dashboard-board" id="dashboard">
-      <div className="portfolio-section__head dashboard-board__head">
-        <p>Dashboard</p>
-        <h2>先给判断：品牌、增长和商业化，是同一套可被验证的转化系统。</h2>
-      </div>
-      <div className="dashboard-grid dashboard-grid--compact" aria-label="个人看板">
-        <article className="dashboard-card dashboard-card--profile glass-card">
-          <span className="dashboard-card__label">Now</span>
-          <h3>{profile.roles.join(' · ')}</h3>
-          <p>{profile.bio}</p>
-          <div className="dashboard-card__meta">
-            {focusItems.map((item) => (
-              <span key={item}>{item}</span>
-            ))}
-          </div>
-        </article>
-      </div>
-    </section>
-  )
-}
-
-function ProjectStack() {
-  return (
-    <section className="portfolio-section project-section" id="projects">
-      <div className="portfolio-section__head">
-        <p>Project</p>
-        <h2>项目作为主线：每张卡只讲一个行动、一个场景和一组结果。</h2>
-      </div>
-      <div className="project-kanban">
-        {projects.map((project, index) => (
-          <article className="project-tile glass-card" key={project.id} style={{ '--accent': project.gradient, '--i': index }}>
-            <div className="project-tile__top">
-              <span>{project.category}</span>
-              <span>{project.period}</span>
-            </div>
-            <h3>{project.title}</h3>
-            <p>{project.summary}</p>
-            <div className="project-tile__metrics">
-              {project.metrics.map((metric) => (
-                <div key={metric.label}>
-                  <strong>{metric.value}</strong>
-                  <span>{metric.label}</span>
-                </div>
-              ))}
-            </div>
-            <div className="project-tile__tags">
-              {project.tags.slice(0, 4).map((tag) => (
-                <span key={tag}>{tag}</span>
-              ))}
-            </div>
-          </article>
-        ))}
-      </div>
-    </section>
-  )
-}
-
-function CapabilityMatrix() {
-  const skills = useMemo(() => skillGroups.flatMap((group) => group.items.slice(0, 4)), [])
-
-  return (
-    <section className="portfolio-section capability-section" id="capabilities">
-      <div className="portfolio-section__head">
-        <p>Capability Points</p>
-        <h2>能力点拆成模块：策略、内容、增长、数据和 AI 协作。</h2>
-      </div>
-      <div className="capability-grid">
-        {strengths.map((item) => (
-          <article className="capability-card glass-card" key={item.title}>
-            <h3>{item.title}</h3>
-            <p>{item.desc}</p>
-            <div>
-              {item.tags.map((tag) => (
-                <span key={tag}>{tag}</span>
-              ))}
-            </div>
-          </article>
-        ))}
-      </div>
-      <div className="skill-panel glass-card">
-        <div className="skill-panel__head">
-          <span>Tool Stack</span>
-          <p>能落地的工具栈，才是能力点的边界。</p>
-        </div>
-        <div className="skill-cloud" aria-label="技能">
-          {skills.map((skill) => (
-            <span key={skill}>{skill}</span>
-          ))}
-        </div>
-      </div>
-    </section>
-  )
-}
-
-function ContactPanel() {
-  const contactActions = [
-    {
-      label: 'Mail',
-      href: `mailto:${profile.contact.email}`,
-      mark: '@',
-    },
-    {
-      label: 'Call',
-      href: `tel:${profile.contact.phone.replace(/\D/g, '')}`,
-      mark: '☎',
-    },
-    ...profile.socials.map((social) => ({
-      label: social.label.replace('赞藏账号', ''),
-      href: social.url,
-      icon: '/icons/xiaohongshu.svg',
-      external: true,
-    })),
-  ]
-
-  return (
-    <section className="contact-panel" id="contact">
-      <div className="contact-panel__inner">
-        <img className="contact-panel__avatar" src="/avatar.jpg" alt={profile.name} />
-        <h2>{profile.nameEn}</h2>
-        <p>{profile.roles.join(' & ')}</p>
-        <div className="contact-panel__rule" aria-hidden="true" />
-        <nav className="contact-panel__links" aria-label="联系入口">
-          {contactActions.map((action) => (
-            <a
-              href={action.href}
-              target={action.external ? '_blank' : undefined}
-              rel={action.external ? 'noreferrer' : undefined}
-              className="contact-button"
-              key={`${action.label}-${action.href}`}
-            >
-              <span className="contact-button__mark">
-                {action.icon ? <img src={action.icon} alt="" aria-hidden="true" /> : action.mark}
-              </span>
-              <span className="contact-button__label">{action.label}</span>
-            </a>
-          ))}
-        </nav>
-        <div className="contact-panel__rule contact-panel__rule--bottom" aria-hidden="true" />
-      </div>
-    </section>
-  )
-}
-
+// ── fullscreen CLI ──────────────────────────────────────────────
 export default function PortfolioExperience() {
-  const [entered, setEntered] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+  const [lines, setLines] = useState(() => [...BOOT])
+  const [input, setInput] = useState('')
+  const [musicOn, setMusicOn] = useState(false)
+  const histRef = useRef([])
+  const histPosRef = useRef(-1)
+  const idRef = useRef(0)
+  const rootRef = useRef(null)
+  const inputRef = useRef(null)
 
-  const enter = () => {
-    setEntered(true)
-    requestAnimationFrame(() => {
-      document.getElementById('portfolio-main')?.focus()
-    })
+  const nextId = () => ++idRef.current
+  const push = (arr) =>
+    setLines((prev) => [...prev, ...arr.map((l) => ({ id: nextId(), t: l.t ?? '', c: l.c ?? '' }))])
+
+  useEffect(() => {
+    const el = rootRef.current
+    if (el) el.scrollTop = el.scrollHeight
+  }, [lines])
+
+  useEffect(() => { inputRef.current?.focus() }, [])
+
+  const toggleMusic = (out, say) => {
+    // first interaction starts the engine; subsequent calls toggle
+    const on = engine.toggle()
+    setMusicOn(on)
+    say(on ? '♫ chiptune: ON' : '♪ chiptune: OFF', on ? 'clr-green' : 'clr-gray')
+  }
+
+  const runCommand = (raw) => {
+    const cmd = raw.trim()
+    push([{ t: `${PROMPT} ${cmd}`, c: 'clr-echo' }])
+    if (!cmd) return
+    histRef.current = [cmd, ...histRef.current.filter((c) => c !== cmd)].slice(0, 50)
+
+    const [name, ...rest] = cmd.split(/\s+/)
+    const arg = rest.join(' ')
+    const out = []
+    const say = (t, c) => out.push({ t, c })
+
+    const printProjects = () => {
+      say('PROJECT INDEX  —  projects <n> for detail', 'clr-yellow')
+      say('')
+      EN_PROJECTS.forEach((p, i) => {
+        say(`  [${String(i + 1).padStart(2, '0')}] ${p.title}`, 'clr-white')
+        say(`       ${p.category}  ·  ${p.period}`, 'clr-gray')
+      })
+    }
+    const printAbout = () => {
+      say('KAY WU  ·  吴可奕', 'clr-cyan')
+      say('BRAND / GROWTH / OPS  —  XMU Economics 2027', 'clr-gray')
+      say('')
+      say('Growth marketer & brand strategist. Ran KOL matrix ops', 'clr-white')
+      say('(500+ creators, 5M+ impressions). Built e-commerce loops', 'clr-white')
+      say('from zero. PR at Edelman, AI ops at Deepwisdom.', 'clr-white')
+    }
+    const printSkills = () => {
+      say('CAPABILITY MATRIX', 'clr-yellow')
+      say('')
+      SKILL_BARS.forEach((s) => say(`  ${s.label.padEnd(22)} [${bar(s.pct)}] ${s.pct}%`, 'clr-cyan'))
+      say('')
+      say('TOOL STACK', 'clr-yellow')
+      TOOL_GROUPS.forEach((g) => say(`  ${g.group.padEnd(16)} ${g.items.join(' · ')}`, 'clr-white'))
+    }
+    const printStats = () => {
+      say('STATS.LOG', 'clr-yellow'); say('')
+      STATS.forEach((s) => say(`  ${s.val.padEnd(6)} ${s.label}`, 'clr-green'))
+    }
+    const printContact = () => {
+      say('CONTACT.TXT', 'clr-yellow'); say('')
+      CONTACT_ROWS.forEach((r) => say(`  [${r.label.padEnd(4)}] ${r.val}`, 'clr-white'))
+      say(''); say('  status: OPEN TO WORK — INTERNSHIP', 'clr-green')
+    }
+    const printSocial = () => {
+      say('SOCIAL.URL', 'clr-yellow'); say('')
+      profile.socials.forEach((s) => say(`  ${s.platform}  ${s.label}  →  ${s.url}`, 'clr-cyan'))
+    }
+    const printEdu = () => {
+      say('EDUCATION', 'clr-yellow'); say('')
+      say(`  ${profile.education.school}  ·  ${profile.education.major}`, 'clr-white')
+      say(`  ${profile.education.degree}  ${profile.education.period}`, 'clr-gray')
+    }
+
+    switch (name.toLowerCase()) {
+      case 'help':
+        say('AVAILABLE COMMANDS', 'clr-yellow'); say('')
+        HELP.forEach(([c, d]) => say(`  ${c.padEnd(14)} ${d}`, 'clr-white'))
+        break
+
+      case 'about':
+      case 'whoami':
+        printAbout()
+        break
+
+      case 'ls':
+      case 'dir':
+        say(FILES.join('   '), 'clr-cyan')
+        break
+
+      case 'cat': {
+        const f = arg.toLowerCase().replace(/^\.?\//, '')
+        if (!f) { say('usage: cat <file>   (try: cat about.txt)', 'clr-red'); break }
+        if (f === 'about.txt')   { printAbout(); break }
+        if (f === 'skills.dat')  { printSkills(); break }
+        if (f === 'stats.log')   { printStats(); break }
+        if (f === 'contact.txt') { printContact(); break }
+        if (f === 'social.url')  { printSocial(); break }
+        if (f === 'edu.txt')     { printEdu(); break }
+        if (f === 'projects' || f === 'projects/') { printProjects(); break }
+        say(`cat: ${arg}: No such file`, 'clr-red')
+        break
+      }
+
+      case 'projects':
+      case 'proj': {
+        const n = parseInt(arg, 10)
+        if (n && EN_PROJECTS[n - 1]) {
+          const p = EN_PROJECTS[n - 1]
+          say(`[${String(n).padStart(2, '0')}] ${p.title}`, 'clr-yellow')
+          say(`     ${p.category}  ·  ${p.period}`, 'clr-gray')
+          say('')
+          say(`     ${p.summary}`, 'clr-white')
+          say('')
+          say(`     ${p.metrics.map((m) => `${m.value} ${m.label}`).join('   ')}`, 'clr-green')
+          say(`     #${p.tags.join(' #').toLowerCase()}`, 'clr-cyan')
+        } else if (arg) {
+          say(`projects: no project #${arg}  (1-${EN_PROJECTS.length})`, 'clr-red')
+        } else {
+          printProjects()
+        }
+        break
+      }
+
+      case 'skills':
+      case 'skill':
+        printSkills()
+        break
+
+      case 'stats':
+        printStats()
+        break
+
+      case 'contact':
+        printContact()
+        break
+
+      case 'social':
+        printSocial()
+        break
+
+      case 'edu':
+      case 'education':
+        printEdu()
+        break
+
+      case 'neofetch':
+        FACE.forEach((row, i) => {
+          const info = [
+            'kay@portfolio',
+            '-------------',
+            'OS:     KAY-DOS v3.0',
+            'Role:   Brand / Growth / Ops',
+            'Base:   Shanghai / Xiamen',
+            'Edu:    XMU Economics 2027',
+            'Uptime: shipping since 2023',
+          ]
+          say(`  ${row}   ${info[i] ?? ''}`, i < 2 ? 'clr-yellow' : 'clr-cyan')
+        })
+        break
+
+      case 'music':
+      case 'sound': {
+        const a = arg.toLowerCase()
+        if (a === 'off' && musicOn) toggleMusic(out, say)
+        else if (a === 'on' && !musicOn) toggleMusic(out, say)
+        else if (a === 'on' || a === 'off') say(`♫ chiptune already ${musicOn ? 'ON' : 'OFF'}`, 'clr-gray')
+        else toggleMusic(out, say)
+        break
+      }
+
+      case 'echo':
+        say(arg || '', 'clr-white')
+        break
+
+      case 'history':
+        if (!histRef.current.length) { say('(empty)', 'clr-gray'); break }
+        histRef.current.slice().reverse().forEach((c, i) =>
+          say(`  ${String(i + 1).padStart(3, ' ')}  ${c}`, 'clr-gray'))
+        break
+
+      case 'date':
+        say(new Date().toString(), 'clr-white')
+        break
+
+      case 'sudo':
+        say('kay is not in the sudoers file. This incident will be reported. ;)', 'clr-red')
+        break
+
+      case 'clear':
+      case 'cls':
+        setLines([])
+        return
+
+      case 'exit':
+      case 'quit':
+        say("there is no exit — you're already home. try 'help'.", 'clr-magenta')
+        break
+
+      default:
+        say(`command not found: ${name}   —   type 'help'`, 'clr-red')
+    }
+
+    push(out)
+  }
+
+  const onKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      runCommand(input)
+      setInput('')
+      histPosRef.current = -1
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      const h = histRef.current
+      if (!h.length) return
+      histPosRef.current = Math.min(histPosRef.current + 1, h.length - 1)
+      setInput(h[histPosRef.current])
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      const h = histRef.current
+      histPosRef.current = Math.max(histPosRef.current - 1, -1)
+      setInput(histPosRef.current === -1 ? '' : h[histPosRef.current])
+    } else if (e.key === 'Tab') {
+      e.preventDefault()
+      const names = HELP.map(([c]) => c.split(' ')[0])
+      const q = input.trim()
+      const hit = q && names.find((n) => n.startsWith(q))
+      if (hit) setInput(hit + ' ')
+    } else if (e.key === 'l' && e.ctrlKey) {
+      e.preventDefault()
+      setLines([])
+    }
   }
 
   return (
-    <div className={`portfolio-experience ${entered ? 'has-entered' : ''}`}>
-      <FluidIntro active={!entered} onEnter={enter} />
-      <div className="portfolio-shell" aria-hidden={!entered}>
-        <GridBackground enabled={entered} />
-        <ContactDock />
-        <nav className="portfolio-nav" aria-label="作品集导航">
-          <a href="#top" className="portfolio-nav__brand">{profile.name}</a>
-          <div>
-            <a href="#dashboard">看板</a>
-            <a href="#projects">Project</a>
-            <a href="#capabilities">能力点</a>
-            <a href="#contact">联系</a>
-          </div>
-        </nav>
-        <main id="portfolio-main" tabIndex="-1">
-          <section className="hero-panel" id="top">
-            <div className="hero-panel__copy">
-              <p className="hero-panel__eyebrow">Kay Wu / Glass Workspace</p>
-              <h1>{profile.name}</h1>
-              <h2>{profile.roles.join(' · ')}</h2>
-              <p>{profile.bio}</p>
-              <div className="hero-panel__actions">
-                <a href="#dashboard">打开看板</a>
-                <a href="#projects">看 Project</a>
-                <a href="#contact">联系我</a>
-              </div>
-            </div>
-            <div className="hero-panel__portrait" aria-label={`${profile.name} 头像`}>
-              <img src="/avatar.jpg" alt={profile.name} />
-              <span>{profile.education.school}</span>
-            </div>
-          </section>
-          <DashboardBoard />
-          <ProjectStack />
-          <CapabilityMatrix />
-          <ContactPanel />
-        </main>
+    <div className="cli" ref={rootRef} onClick={() => inputRef.current?.focus()}>
+      <div className="cli__scanlines" aria-hidden="true" />
+      <div className="cli__stream">
+        {lines.map((l) => (
+          <div key={l.id} className={`cli__line ${l.c}`}>{l.t || ' '}</div>
+        ))}
+      </div>
+      <div className="cli__prompt-line">
+        <span className="cli__prompt">{PROMPT}</span>
+        <input
+          ref={inputRef}
+          className="cli__input"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={onKeyDown}
+          spellCheck={false}
+          autoComplete="off"
+          autoCapitalize="off"
+          aria-label="terminal input"
+        />
+        <span className="cli__cursor animate-blink">▮</span>
       </div>
     </div>
   )
