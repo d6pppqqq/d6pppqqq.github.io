@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { profile } from '../data/profile.js'
+import { ecommerceAnalyticsProjects } from '../data/ecommerceAnalytics.js'
 import { ChiptuneEngine } from '../audio/chiptuneEngine.js'
 import './PortfolioExperience.css'
 
@@ -19,14 +20,14 @@ const EN_PROJECTS = [
     tags: ['E-COMM OPS', 'GROWTH LOOP', 'ATTRIBUTION', 'PRIVATE TRAFFIC'],
   },
   {
-    title: 'AI PRODUCT KOL MATRIX',
-    category: 'CREATOR MKT · CROSS-BORDER',
-    period: '2025.08 — 2025.11',
+    title: 'CREATOR CAMPAIGN · BUDGET CONTROL',
+    category: 'INFLUENCER MKT · PROJECT OPS',
+    period: '2026.05 — NOW',
     summary:
-      'Led full-funnel overseas KOL marketing for AI product. Built 500+ creator matrix, ' +
-      'drove 5M+ impressions. CTR lifted from 0.5% to 1%+.',
-    metrics: [{ value: '5M+', label: 'IMPRESSIONS' }, { value: '0.5→1%+', label: 'CTR' }],
-    tags: ['KOL OPS', 'CROSS-BORDER', 'CONTENT COLLAB', 'DATA REVIEW'],
+      'Owned a RMB 100K domestic creator campaign end to end — creator selection, sampling, ' +
+      'script review, delivery tracking and expense closeout. Nearly 80 assets drove 700K+ organic impressions.',
+    metrics: [{ value: 'RMB100K', label: 'BUDGET' }, { value: '~80', label: 'DELIVERABLES' }],
+    tags: ['BUDGET CONTROL', 'CREATOR OPS', 'CONTENT QA', 'EXPENSE CLOSEOUT'],
   },
   {
     title: 'HEALTH BRAND IMC CAMPAIGN',
@@ -67,10 +68,10 @@ const TOOL_GROUPS = [
 ]
 
 const STATS = [
-  { val: '5M+',  label: 'KOL IMPRESSIONS' },
-  { val: '500+', label: 'CREATOR MATRIX' },
-  { val: '+15%', label: 'CAC IMPROVEMENT' },
-  { val: '30K+', label: 'EVENTS SERVED' },
+  { val: 'RMB100K', label: 'CAMPAIGN BUDGET' },
+  { val: '~80',     label: 'CONTENT DELIVERIES' },
+  { val: '700K+',   label: 'ORGANIC IMPRESSIONS' },
+  { val: '+10%',    label: 'E-COMM GMV' },
 ]
 
 const CONTACT_ROWS = [
@@ -82,14 +83,15 @@ const CONTACT_ROWS = [
 // ── terminal chrome ─────────────────────────────────────────────
 const PROMPT = 'kay@portfolio:~$'
 
-const FILES = ['about.txt', 'projects/', 'skills.dat', 'stats.log', 'contact.txt', 'social.url', 'edu.txt']
+const FILES = ['about.txt', 'projects/', 'analytics/', 'skills.dat', 'stats.log', 'contact.txt', 'social.url', 'edu.txt']
 
 const HELP = [
   ['help',        'show this command list'],
   ['about',       'who is kay wu'],
   ['ls',          'list files here'],
   ['cat <file>',  'print a file  (try: cat about.txt)'],
-  ['projects',    'list projects · projects <n> for detail'],
+  ['projects',    'all projects · projects <n|a1> for detail'],
+  ['analytics',   'e-commerce analytics case studies'],
   ['skills',      'capability matrix + tool stack'],
   ['stats',       'key metrics dump'],
   ['contact',     'how to reach me'],
@@ -126,7 +128,7 @@ const BOOT = [
   { t: 'Booting kernel ......... OK', c: 'clr-green' },
   { t: 'Mounting /home/kay ..... OK', c: 'clr-green' },
   { t: '' },
-  { t: "Type 'help' for commands.  Try: about · projects · skills", c: 'clr-yellow' },
+  { t: "Type 'help' for commands.  Try: analytics · projects · skills", c: 'clr-yellow' },
   { t: '' },
 ]
 
@@ -176,20 +178,59 @@ export default function PortfolioExperience() {
     const say = (t, c) => out.push({ t, c })
 
     const printProjects = () => {
-      say('PROJECT INDEX  —  projects <n> for detail', 'clr-yellow')
+      say('PROJECT INDEX  —  projects <n|a1> for detail', 'clr-yellow')
       say('')
       EN_PROJECTS.forEach((p, i) => {
         say(`  [${String(i + 1).padStart(2, '0')}] ${p.title}`, 'clr-white')
         say(`       ${p.category}  ·  ${p.period}`, 'clr-gray')
       })
+      say('')
+      say('  E-COMMERCE ANALYTICS LAB', 'clr-cyan')
+      ecommerceAnalyticsProjects.forEach((p) => {
+        say(`  [${p.id.toUpperCase()}] ${p.title}`, 'clr-white')
+        say(`       ${p.category}  ·  ${p.status}`, 'clr-gray')
+      })
+    }
+    const printAnalytics = () => {
+      say('E-COMMERCE ANALYTICS LAB  —  analytics <1-3> for detail', 'clr-yellow')
+      say('All findings use synthetic data and are portfolio case studies.', 'clr-gray')
+      say('')
+      ecommerceAnalyticsProjects.forEach((p, i) => {
+        say(`  [${i + 1}] ${p.title}`, 'clr-white')
+        say(`      ${p.question}`, 'clr-gray')
+        say(`      ${p.metrics.map((m) => `${m.value} ${m.label}`).join('   ')}`, 'clr-green')
+      })
+    }
+    const printAnalyticsDetail = (p) => {
+      say(`[${p.id.toUpperCase()}] ${p.title}`, 'clr-yellow')
+      say(`     ${p.category}  ·  ${p.period}`, 'clr-gray')
+      say(`     [${p.status}]`, 'clr-magenta')
+      say('')
+      say('BUSINESS QUESTION', 'clr-cyan')
+      say(`  ${p.question}`, 'clr-white')
+      say('')
+      say('DATASET', 'clr-cyan')
+      say(`  ${p.dataset}`, 'clr-white')
+      say('')
+      say('METHOD', 'clr-cyan')
+      p.methods.forEach((method) => say(`  + ${method}`, 'clr-white'))
+      say('')
+      say('KEY FINDINGS', 'clr-cyan')
+      p.findings.forEach((finding, i) => say(`  ${i + 1}. ${finding}`, 'clr-white'))
+      say('')
+      say('RECOMMENDATION', 'clr-cyan')
+      say(`  ${p.action}`, 'clr-green')
+      say('')
+      say(`OUTPUT  ${p.deliverables.join(' · ')}`, 'clr-gray')
+      say(`STACK   ${p.tools.join(' · ')}`, 'clr-gray')
     }
     const printAbout = () => {
       say('KAY WU  ·  吴可奕', 'clr-cyan')
       say('BRAND / GROWTH / OPS  —  XMU Economics 2027', 'clr-gray')
       say('')
-      say('Growth marketer & brand strategist. Ran KOL matrix ops', 'clr-white')
-      say('(500+ creators, 5M+ impressions). Built e-commerce loops', 'clr-white')
-      say('from zero. PR at Edelman, AI ops at Deepwisdom.', 'clr-white')
+      say('Growth marketer & brand operator. Owned a RMB 100K', 'clr-white')
+      say('creator campaign from selection and content QA through', 'clr-white')
+      say('delivery and closeout: ~80 assets, 700K+ organic views.', 'clr-white')
     }
     const printSkills = () => {
       say('CAPABILITY MATRIX', 'clr-yellow')
@@ -244,12 +285,18 @@ export default function PortfolioExperience() {
         if (f === 'social.url')  { printSocial(); break }
         if (f === 'edu.txt')     { printEdu(); break }
         if (f === 'projects' || f === 'projects/') { printProjects(); break }
+        if (f === 'analytics' || f === 'analytics/') { printAnalytics(); break }
         say(`cat: ${arg}: No such file`, 'clr-red')
         break
       }
 
       case 'projects':
       case 'proj': {
+        const analyticsMatch = arg.toLowerCase().match(/^a([1-3])$/)
+        if (analyticsMatch) {
+          printAnalyticsDetail(ecommerceAnalyticsProjects[Number(analyticsMatch[1]) - 1])
+          break
+        }
         const n = parseInt(arg, 10)
         if (n && EN_PROJECTS[n - 1]) {
           const p = EN_PROJECTS[n - 1]
@@ -264,6 +311,19 @@ export default function PortfolioExperience() {
           say(`projects: no project #${arg}  (1-${EN_PROJECTS.length})`, 'clr-red')
         } else {
           printProjects()
+        }
+        break
+      }
+
+      case 'analytics':
+      case 'analysis': {
+        const n = parseInt(arg, 10)
+        if (n && ecommerceAnalyticsProjects[n - 1]) {
+          printAnalyticsDetail(ecommerceAnalyticsProjects[n - 1])
+        } else if (arg) {
+          say(`analytics: no case #${arg}  (1-${ecommerceAnalyticsProjects.length})`, 'clr-red')
+        } else {
+          printAnalytics()
         }
         break
       }
@@ -382,8 +442,8 @@ export default function PortfolioExperience() {
     <div className="cli" ref={rootRef} onClick={() => inputRef.current?.focus()}>
       <div className="cli__scanlines" aria-hidden="true" />
       <div className="cli__stream">
-        {lines.map((l) => (
-          <div key={l.id} className={`cli__line ${l.c}`}>{l.t || ' '}</div>
+        {lines.map((l, index) => (
+          <div key={l.id ?? `boot-${index}`} className={`cli__line ${l.c}`}>{l.t || ' '}</div>
         ))}
       </div>
       <div className="cli__prompt-line">
