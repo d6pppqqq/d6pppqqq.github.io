@@ -197,23 +197,23 @@ export default function Game() {
   return (
     <>
       <div className="page-head">
-        <div className="page-title">打飞机</div>
-        <div className="page-sub">移动鼠标（或 ← → 键）控制，自动开火 · 摸鱼小游戏</div>
+        <div className="page-title">Space Shooter</div>
+        <div className="page-sub">Move the mouse (or ← → keys) to steer · auto-fire · a tiny desk-break game</div>
       </div>
       <div style={{ position: 'relative' }}>
         <canvas ref={canvasRef} width={W} height={H} className="game-canvas" />
         {over && (
           <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,.86)', borderRadius: 12 }}>
             <div style={{ fontSize: 28, fontWeight: 800, color: '#F42E7A' }}>GAME OVER</div>
-            <div style={{ marginTop: 8, color: '#888' }}>得分 {score} · 最高 {best}</div>
-            <button className="btn" style={{ marginTop: 20 }} onClick={restart}>重新开始</button>
+            <div style={{ marginTop: 8, color: '#888' }}>Score {score} · Best {best}</div>
+            <button className="btn" style={{ marginTop: 20 }} onClick={restart}>Restart</button>
           </div>
         )}
       </div>
       <div className="game-hud">
-        <span>得分 <b>{score}</b></span>
-        <span>生命 <b>{'♥'.repeat(Math.max(0, lives)) || '—'}</b></span>
-        <span>最高 <b>{best}</b></span>
+        <span>Score <b>{score}</b></span>
+        <span>Lives <b>{'♥'.repeat(Math.max(0, lives)) || '—'}</b></span>
+        <span>Best <b>{best}</b></span>
       </div>
     </>
   )

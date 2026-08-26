@@ -35,7 +35,7 @@ export default function Login() {
     } else if (mode === 'register') {
       const { error } = await supabase.auth.signUp({ email, password })
       if (error) setErr(error.message)
-      else setInfo('注册成功，请查收邮箱确认链接')
+      else setInfo('Signed up — check your inbox for the confirmation link')
     } else {
       // magic link：免密码，点邮件链接登录（未注册的邮箱会自动建号）
       const { error } = await supabase.auth.signInWithOtp({
@@ -43,7 +43,7 @@ export default function Login() {
         options: { emailRedirectTo: window.location.origin + '/#/login', shouldCreateUser: true },
       })
       if (error) setErr(error.message)
-      else setInfo('登录链接已发送到 ' + email + '，点邮件里的链接即可登录（没收到看下垃圾箱）')
+      else setInfo('Login link sent to ' + email + " — click it to sign in (check spam if you don't see it)")
     }
     setLoading(false)
   }
@@ -54,31 +54,31 @@ export default function Login() {
   }
 
   if (!isSupabaseConfigured) {
-    return <div className="login-wrap"><div className="login-title">登录 Koi</div><div className="notice">Supabase 后端尚未配置。</div></div>
+    return <div className="login-wrap"><div className="login-title">Sign in to Koi's</div><div className="notice">Supabase backend is not configured yet.</div></div>
   }
 
   if (user) {
     return (
       <div className="login-wrap">
-        <div className="login-title">已登录</div>
+        <div className="login-title">Signed in</div>
         <p style={{ textAlign: 'center', color: '#888', marginBottom: 20, wordBreak: 'break-all' }}>{user.email}</p>
-        <button className="btn btn-block" onClick={() => navigate('/notes')}>去小纸条</button>
-        <button className="btn btn-ghost btn-block" style={{ marginTop: 10 }} onClick={logout}>退出登录</button>
+        <button className="btn btn-block" onClick={() => navigate('/notes')}>Go to Notes</button>
+        <button className="btn btn-ghost btn-block" style={{ marginTop: 10 }} onClick={logout}>Sign out</button>
       </div>
     )
   }
 
   const tabs = [
-    ['login', '密码登录'],
-    ['register', '注册'],
-    ['magiclink', '邮箱登录'],
+    ['login', 'Password'],
+    ['register', 'Sign up'],
+    ['magiclink', 'Email link'],
   ]
 
   return (
     <div className="login-wrap">
-      <div className="slot login-logo">logo</div>
+      <img className="login-logo-img" src="/login_icon.png" alt="Koi" />
       <div className="login-title">
-        {mode === 'login' ? '登录 Koi' : mode === 'register' ? '注册' : '邮箱登录（免密码）'}
+        {mode === 'login' ? "Sign in to Koi's" : mode === 'register' ? 'Sign up' : 'Email link (no password)'}
       </div>
 
       <div style={{ display: 'flex', gap: 8, margin: '4px 0 20px', justifyContent: 'center' }}>
@@ -97,25 +97,25 @@ export default function Login() {
 
       <form onSubmit={submit}>
         <div className="field">
-          <label>邮箱</label>
+          <label>Email</label>
           <input className="input" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
         </div>
         {mode !== 'magiclink' && (
           <div className="field">
-            <label>密码</label>
+            <label>Password</label>
             <input className="input" type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} />
           </div>
         )}
         {err && <div className="form-err">{err}</div>}
         {info && <div className="notice">{info}</div>}
         <button className="btn btn-block" disabled={loading} type="submit">
-          {loading ? '…' : mode === 'login' ? '登录' : mode === 'register' ? '注册' : '发送登录链接'}
+          {loading ? '…' : mode === 'login' ? 'Sign in' : mode === 'register' ? 'Sign up' : 'Send login link'}
         </button>
       </form>
 
       {mode === 'magiclink' && (
         <div className="login-alt" style={{ marginTop: 12, fontSize: 13, color: '#999' }}>
-          没账号也能直接登录，第一次会自动注册。要写文章需用站长邮箱 keyiwu11@gmail.com。
+          No account needed — first sign-in auto-registers. To write posts, use the owner email keyiwu11@gmail.com.
         </div>
       )}
     </div>

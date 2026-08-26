@@ -1,18 +1,18 @@
 import { NavLink } from 'react-router-dom'
 
 const LINKS = [
-  { to: '/', label: '简历' },
-  { to: '/game', label: '游戏' },
+  { to: '/', label: 'Resume' },
+  { to: '/game', label: 'Game' },
   { to: '/blog', label: 'Blog' },
-  { to: '/notes', label: '小纸条' },
-  { to: '/login', label: '登录' },
+  { to: '/notes', label: 'Notes' },
+  { to: '/login', label: 'Login' },
 ]
 
 export default function TopNav() {
   return (
     <nav className="topnav">
       <div className="topnav-inner">
-        <NavLink to="/" className="brand">Koi<span> · 作品集</span></NavLink>
+        <NavLink to="/" className="brand">Koi<span> · Portfolio</span></NavLink>
         <div className="nav-links">
           {LINKS.map((l) => (
             <NavLink
