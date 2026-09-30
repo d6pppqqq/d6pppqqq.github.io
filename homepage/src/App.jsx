@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import TopNav from './components/TopNav.jsx'
 import Sidebar from './components/Sidebar.jsx'
 import Resume from './pages/Resume.jsx'
+import Work from './pages/Work.jsx'
 import Game from './pages/Game.jsx'
 import Blog from './pages/Blog.jsx'
 import Notes from './pages/Notes.jsx'
@@ -18,6 +19,7 @@ export default function App() {
           <main className="main">
             <Routes>
               <Route path="/" element={<Resume />} />
+              <Route path="/work" element={<Work />} />
               <Route path="/game" element={<Game />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/notes" element={<Notes />} />

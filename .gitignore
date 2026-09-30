@@ -25,15 +25,11 @@ output/
 *.ppt
 *.pptx
 *.xlsx
-2026*/
-【LaTeX简历】*/
-【灵活取用】素材/
-素材/
-logo图/
-xiao-bao-bao/
-央国企名单整理/
-d6pppqqq.github.io-master/
-gen_report.py
-generate_report3.js
-吴可奕_厦门大学_1周内到岗_一周_5_天__商业化类_.zip
-吴可奕_*
+
+# 2026-10-01 整理后：仓库只跟踪 homepage/ 网站，其余本地内容一律不入库
+.claude/
+01-作品/
+02-素材/
+03-简历/
+04-求职材料/
+99-归档/

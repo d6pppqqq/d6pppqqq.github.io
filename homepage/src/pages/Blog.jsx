@@ -2,11 +2,47 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase, isSupabaseConfigured, OWNER_EMAIL } from '../lib/supabase.js'
 import { seedPosts } from '../data/blogPosts.js'
+import { insightPosts } from '../data/insightPosts.js'
+
+const CATEGORIES = ['All', 'Gaming', 'FMCG', 'Macro', 'AI & GTM']
+
+const postCategory = (p) => {
+  const t = (p.tags || []).join(' ').toLowerCase()
+  if (/gaming|battle royale|esports/.test(t)) return 'Gaming'
+  if (/fmcg|快消|brand/.test(t)) return 'FMCG'
+  if (/macro|宏观/.test(t)) return 'Macro'
+  return 'AI & GTM'
+}
 
 const fmtTime = (t) => new Date(t).toLocaleDateString('zh-CN', { year: 'numeric', month: 'short', day: 'numeric' })
 
+// Featured 长文：默认折叠为第一段 teaser，点开读全文
+function FeaturedPost({ p }) {
+  const [open, setOpen] = useState(false)
+  const teaser = p.content.split('\n\n')[0]
+  return (
+    <div className="post-item featured-post">
+      <div className="slot post-thumb">cover</div>
+      <div>
+        <div className="post-title">{p.title}</div>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', margin: '8px 0 12px' }}>
+          {p.tags.map((t) => <span className="tag" key={t}>{t}</span>)}
+        </div>
+        <div style={{ fontSize: 15, lineHeight: 1.8, whiteSpace: 'pre-wrap' }}>
+          {open ? p.content : (teaser.length > 340 ? teaser.slice(0, 340) + '…' : teaser)}
+        </div>
+        <div className="post-meta">
+          <span>{p.date}</span>
+          <button onClick={() => setOpen(!open)}>{open ? '收起' : '阅读全文'}</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function Blog() {
   const [ready, setReady] = useState(false)
+  const [cat, setCat] = useState('All')
   const [user, setUser] = useState(null)
   const [posts, setPosts] = useState([])
   const [likeCounts, setLikeCounts] = useState({})
@@ -81,10 +117,17 @@ export default function Blog() {
   }
 
   const showSeed = posts.length === 0
+  const featured = insightPosts.filter((p) => cat === 'All' || p.category === cat)
+  const remotePosts = posts.filter((p) => cat === 'All' || postCategory(p) === cat)
 
   return (
     <>
-      <div className="page-head"><div className="page-title">Blog</div><div className="page-sub">洞察 · 运营 / 增长 / AI</div></div>
+      <div className="page-head"><div className="page-title">Blog</div><div className="page-sub">Insights · Gaming / FMCG / Macro / AI &amp; GTM</div></div>
+      <div className="cat-bar">
+        {CATEGORIES.map((c) => (
+          <button key={c} className={cat === c ? 'cat-btn active' : 'cat-btn'} onClick={() => setCat(c)}>{c}</button>
+        ))}
+      </div>
       {user && user.email === OWNER_EMAIL && (
         <div style={{ marginBottom: 24 }}>
           <Link to="/write" className="btn btn-ghost">＋ 写文章</Link>
@@ -94,7 +137,17 @@ export default function Blog() {
       {msg && <div className="notice">{msg} · <Link to="/login">去登录</Link></div>}
       {!ready && <div className="post-empty">加载中…</div>}
 
-      {showSeed && ready && seedPosts.map((p) => (
+      {featured.length > 0 && (
+        <>
+          <div className="featured-k">Featured analysis</div>
+          {featured.map((p) => <FeaturedPost key={p.id} p={p} />)}
+        </>
+      )}
+      {cat !== 'All' && ready && remotePosts.length === 0 && featured.length === 0 && (
+        <div className="post-empty">No posts under “{cat}” yet — more analysis landing soon.</div>
+      )}
+
+      {showSeed && cat === 'All' && ready && seedPosts.map((p) => (
         <div className="post-item" key={p.id}>
           <div className="slot post-thumb">封面</div>
           <div>
@@ -108,7 +161,7 @@ export default function Blog() {
         </div>
       ))}
 
-      {posts.map((p) => (
+      {remotePosts.map((p) => (
         <div className="post-item" key={p.id}>
           <div className="slot post-thumb">封面</div>
           <div>

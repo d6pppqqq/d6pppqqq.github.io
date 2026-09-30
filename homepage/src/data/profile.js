@@ -71,16 +71,54 @@ export const experiences = [
   },
 ]
 
-// 校园实践（英文）
+// 校园经历（学生干部）— 独立成区，不与实习/摄影混（英文）
+// 三要素固定：period 时间 / desc 项目内容与产出 / role 负责人角色
 export const campus = [
   {
     org: 'XMU School of Economics · Publicity Center',
     role: 'Deputy Director',
     period: '2025.06 — Present',
     logo: '/logos/xmu.jpeg',
-    desc: "Managed a 40-person video team and built a content-production SOP; coordinated shooting for 25+ major events reaching 30K+ attendees; led the 'Understanding China' micro-video project to 10K+ views.",
+    leadership: 'Student-organisation leadership role — one of the department-level student organisation leads.',
+    desc: "Independently ran a 40-person video team for a full year — recruiting, scheduling, training and performance review, plus equipment and asset governance. Coordinated end-to-end shooting and distribution for 25+ school-level events reaching 30K+ attendees; built the selection-shoot-review-distribute SOP; directed the 'Understanding China' micro-video project to 10K+ views.",
+    outputs: ['40-person team, full year', '25+ events / 30K+ attendees', 'SOP + asset & equipment register', "'Understanding China' 10K+ views"],
+  },
+  {
+    org: 'Senior Professor Interview Series',
+    role: 'Producer (end-to-end)',
+    period: '2024 — 2025',
+    logo: '/logos/xmu.jpeg',
+    leadership: 'Ran the project end-to-end myself — planning, directing, shooting and post-production.',
+    desc: 'Interviewed 3 senior professors across two years: selected topics and designed the question set, shot the interviews on location, and edited the finished films.',
+    outputs: ['3 senior professors', 'Planning → directing → shooting → post-production'],
+  },
+  {
+    org: 'Economics Class of 2025 Graduation MV',
+    role: 'Crew · Camera',
+    period: '2025',
+    logo: '/logos/xmu.jpeg',
+    leadership: 'Shooting crew member (contributor, not lead).',
+    desc: "Shot footage as part of the production crew for the School of Economics' Class of 2025 graduation music video.",
+  },
+  {
+    org: 'Xiamen University Official WeChat Team (Xiaoxia)',
+    role: 'Photo Editor',
+    period: '2024.06 — 2025.06',
+    logo: '/logos/xmu.jpeg',
+    leadership: 'Core member of the university-level official account visual team.',
+    desc: 'Supplied and pre-screened imagery for 10+ official posts, iterating selection style against editorial feedback; the account serves a 100K+ monthly active audience.',
   },
 ]
+
+// 摄影与影像（个人专长 · 技能侧证据，不含干部身份）
+export const photography = {
+  disciplines: [
+    { k: 'Equipment', v: '12 digital cameras and 6 film bodies (Canon / Minolta / Olympus / Pentax) bought, long-term tested and reviewed since 2022.' },
+    { k: 'Publishing', v: '12 Xiaohongshu camera-review posts, 40K+ impressions; a digital-notes piece at 3,000+ reads.' },
+    { k: 'Assignments', v: 'Conference, sports and event photography — lead conference photographer within the school.' },
+  ],
+  tools: ['Photoshop', 'Lightroom', 'DaVinci', 'FCPX', 'CapCut'],
+}
 
 // 个人优势/能力卡片（预留，当前未在页面渲染）
 export const strengths = [
